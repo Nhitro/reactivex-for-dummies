@@ -28,7 +28,17 @@ Il faut néanmoins garder en tête que les threads ne sont pas une solution mira
 
 Il est intéressant maintenant de nous pencher sur le fonctionnement des threads. Certaines règles régissent les threads et vont donc influencer notre manière de les utiliser dans notre application et notre développement.
 
-En programmation orientée objet, un thread est représenté par l'instance d'une classe Thread, [comme celle-ci en JAVA](https://docs.oracle.com/javase/7/docs/api/java/lang/Thread.html). 
+En programmation orientée objet, un thread est représenté par l'instance d'une classe Thread, [comme celle-ci en JAVA](https://docs.oracle.com/javase/7/docs/api/java/lang/Thread.html). La classe expose des méthodes, comme `run()` qui va exécuter l'ensemble des instructions du thread ou bien la méthode `stop()` qui va permettre d'arrêter le thread peu importe son état (ceci est dangereux).
+
+Du coup, pour réaliser un appel distant, on va pouvoir faire :
+
+```kotlin
+val thread = object: Thread() { override run() = appelDistant() }
+
+thread.start()
+```
+
+Le thread va donc s'exécuter et réaliser l'appel distant. Lorsqu'il aura terminé, il sera détruit comme tout objet dès lors qu'il n'y a plus de référence forte vers lui et qui ne possède plus aucune référence 
 
 Théorie développement :- Développement front dans un système => un processus- Un processus est composé d'un thread principal que l'on appelle le main thread ou UI thread en anglais- Ce thread est en charge du rafraîchichissement de la vue, des évènements, des animations, bref à beaucoup de choses où il faut être rapide
 Théorie système :- Tous les processus se partagent les ressources du système- Un processus partage les ressources allouées par le système entre ses différents threads- Plus un processus a de threads, moins ses threads iront vite (analogie, plus vous avez d'invités à votre anniversaire, moins vous aurez de gâteau à manger.)
