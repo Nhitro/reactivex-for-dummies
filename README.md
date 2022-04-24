@@ -14,7 +14,9 @@ La majorité du temps, le processus de notre application ne contiendra qu'un seu
 - L'exécution des animations
 - D'autres choses que j'ai pu oublier !
 
-En synthèse, le *main thread* joue un rôle majeur dans l'exécution de l'application car si jamais il doit réaliser une opération longue ou se retrouver bloqué avec un `while(true)` par exemple, l'application ne répondrait plus aux évènements utilisateurs.
+### En synthèse
+
+Le *main thread* joue un rôle majeur dans l'exécution de l'application car si jamais il doit réaliser une opération longue ou se retrouver bloqué avec un `while(true)` par exemple, l'application ne répondrait plus aux évènements utilisateurs.
 
 > Sur Android, si le thread graphique met plus de deux secondes à réaliser sa routine de rafraîchissement de la vue, l'OS fait apparaître une pop-up ANR (Android Not Responding) à l'utilisateur qui peut donc fermer l'application en pensant qu'elle a crash alors que cette dernière réalise simplement un appel distant ou un algorithme complèxe.
 
@@ -187,7 +189,7 @@ fun main(args: Array<String>) {
 
 L'ensemble de ces bouts de code est disponible sur ce répertoire dans les classes *ParentThreadWaitingThreadDeath*, *ParentThreadNotWaitingChildThreadDeath* et *ParentThreadNotWaitingChildThreadInfinityLiveDeath*.
 
-### La synthèse
+### En synthèse
 
 Ce qu'il faut retenir principalement des threads, c'est qu'ils ne sont pas magiques mais ils permettent de répondre au besoin de répartir les tâches entre la vue et les tâches plus longues (accès disque, accès réseau). Ils apportent une nouvelle complexité dans le code car il faut à la fois bien s'assurer qu'aucun thread ne soit immortel et il faut mettre en place des interfaces / protocoles pour réaliser des communications inter-threads (non vu dans les exemples). 
 
