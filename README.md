@@ -26,9 +26,9 @@ En lisant ces deux dernières lignes, on se rend donc compte qu'il est primordia
 
 ## Dive in the threads
 
-Pour pouvoir réaliser des opérations longues ou coûteuses en ressource, nous pouvons nous appuyer sur les threads. Pour rappel, un processus peut contenir un à N threads, et chacun des threads possède sa propre [pile d'exécution](https://fr.wikipedia.org/wiki/Pile_d%27ex%C3%A9cution). C'est de cette manière que la magie opère, pendant qu'un thread X réalisera un appel à une API par exemple et sera dans l'attente d'une réponse, le *main thread* pourra toujours exécuter d'autres méthodes et écouter les évènements.
+Pour pouvoir réaliser des opérations longues ou coûteuses en ressource, nous pouvons nous appuyer sur les threads. Pour rappel, un processus peut contenir un à N threads, et chacun des threads possède sa propre [pile d'exécution](https://fr.wikipedia.org/wiki/Pile_d%27ex%C3%A9cution). C'est de cette manière que la magie opère, pendant qu'un thread X réalisera un appel à une API par exemple et sera dans l'attente d'une réponse, le *main thread* pourra toujours exécuter d'autres méthodes comme rafraîchir la vue et écouter les évènements de l'utilisateur.
 
-Il faut néanmoins garder en tête que les threads ne sont pas une solution miracle et ne possèdent pas de contrecoup. Certes, ils ne partagent pas la même pile d'exécution, mais tous les threads se partagent les mêmes ressources allouées au processus. Pour faire une analogie, plus vous invitez de gens à votre anniversaire, moins vous aurez de gâteau à manger. Les gens sont les threads, le gâteau, les ressources disponibles. Il ne faut pas en abuser sous peine de ralentir l'ensemble de votre application. 
+Il faut néanmoins garder en tête que les threads ne sont pas une solution miracle et ne possèdent pas de contrecoup. Certes, ils ne partagent pas la même pile d'exécution, mais tous les threads se partagent les mêmes ressources allouées au processus. Pour faire une analogie, plus vous invitez de gens à votre anniversaire, moins vous aurez de gâteau à manger. Les gens sont les threads, le gâteau, les ressources disponibles et vous, le *main thread*. Il ne faut pas en abuser sous peine de ralentir l'ensemble de votre application. 
 
 Il est intéressant maintenant de nous pencher sur le fonctionnement des threads. Certaines règles régissent les threads et vont donc influencer notre manière de les utiliser dans notre application et notre développement.
 
@@ -42,7 +42,7 @@ val newThread = object: Thread() { override fun run() = appelDistant() }.apply {
 
 `newThread` va donc s'exécuter et réaliser l'appel distant. Lorsqu'il aura terminé, il passera en état "terminé" et il pourra donc être détruit par le garbage collector dès qu'il n'y aura plus de références qui pointent sur son instance. À noter que dans cet exemple, le thread à l'origine de la création de `newThread` n'attend pas qu'il soit terminé pour continuer sa routine voire lui-même passé en état "terminé". Cependant, le thread ne pourra pas être détruit tant que `newThread` n'est pas en état "terminé".
 
-### 1. Exemple d'un thread executant un autre et qui termine sans s'assurer que son enfant l'ait été
+### 1. Exemple d'un thread exécutant un autre et qui termine sans s'assurer que son enfant l'ait été
 
 Penchons-nous sur un cas un plus complexe, où un thread `Parent thread` va créer un nouveau thread `Child thread` sans attendre qu'il termine pour terminer à son tour. Le `main thread` n'a qu'un rôle de superviseur ici, il initie le scénario et s'assure de ne pas terminer avant que tous les threads soient coupés grâce à la méthode `join()`.
 
@@ -93,15 +93,15 @@ fun main(args: Array<String>) {
   
 > 1. Main thread start
 > 2. Parent thread start
-> 3. Child thread start
-> 4. Parent thread stop
+> 3. Child thread start <-- interchangeable avec 4
+> 4. Parent thread stop <-- interchangeable avec 3
 > 5. Child thread stop
 > 6. Main thread stop
 >
-> Cela vous étonne ? Primo, on ne sait pas exactement quand un thread sera exécuté même si on l'a instancié et que l'on a appelé la méthode `.start()`. Si le `main thread` ne faisait pas appel à la méthode `join()` de `Parent thread` via la liste `threadList`, il se serait terminé bien avant que `Parent thread` n'ait commencé. Secundo, `Parent thread` n'appelle lui jamais la méthode `join()` de son thread enfant ce qui fait qu'il n'attend pas qu'il ait terminé. Quant au `main thread`, il initie et boucle le scénario comme annoncé plus haut.
+> Cela vous étonne ? Primo, on ne sait pas exactement quand un thread sera exécuté même si on l'a instancié et que l'on a appelé la méthode `.start()`. Si le `main thread` ne faisait pas appel à la méthode `join()` de `Parent thread` via la liste `threadList`, il se serait terminé bien avant que `Parent thread` n'ait commencé. Du coup, il est possible que les positions 3. et 4. soient interchangées (et cela sera toujours correct). Secundo, `Parent thread` n'appelle lui jamais la méthode `join()` de son thread enfant ce qui fait qu'il n'attend pas qu'il ait terminé. Quant au `main thread`, il initie et boucle le scénario comme annoncé plus haut.
 </details>
 
-### 2. Exemple d'un thread executant un autre et qui s'assure que son enfant ait terminé avant de terminer à son tour
+### 2. Exemple d'un thread exécutant un autre et qui s'assure que son enfant ait terminé avant de terminer à son tour
 
 Voici un second scénario très similaire au premier :
 
@@ -181,8 +181,8 @@ fun main(args: Array<String>) {
   
 > 1. Main thread start
 > 2. Parent thread start
-> 3. Child thread start
-> 4. Parent thread stop
+> 3. Child thread start <-- interchangeable avec 4
+> 4. Parent thread stop <-- interchangeable avec 3
 >
 > Cela vous étonne ? `Child thread` étant dans une boucle `while (true)`, il ne peut jamais se terminer. La conséquence est que le `main thread` ne pourra jamais terminer à son tour. Cet exemple vise à sensibiliser sur les risques que peut générer un thread immortel, le plus courant étant une fuite mémoire car votre programme ne pourra jamais être terminé proprement sauf grâce à des mécanismes de nettoyage du système d'exploitation ou à un redémarrage physique de la machine.
 </details>
@@ -197,8 +197,31 @@ C'est dans ce contexte que les bibliothèques ReactiveX ont été créées. Bien
 
 ## ReactiveX
 
+Dans la programmation ReactiveX, on ne parle jamais directement de threads. On parle soit d'objets, **Observable**, soit de **Schedulers**. 
+Nous allons commencer par aborder l'ensemble des objets Rx ! Comme leur nom l'indique, ce sont des objets qui vont émettre une valeur à des observers, voir [l'explication sur le patron observer](https://refactoring.guru/design-patterns/observer) pour comprendre rapidement ce que c'est. On distingue deux types de **Observable**, les **cold** et les **hot**. 
 
+La différence entre les deux est très simple à retenir !
+- un cold observable ne va pas émettre de valeur tant qu'il n'aura pas d'observers
+- un hot observable va émettre des valeurs même s'il n'a pas d'observers
+    
+> Sur Android, un hot observable très connu est le LiveData<T>
+    
+Nous allons commencer par aborder les cold observables.
+    
+#### Cold observables
+   
+##### Observable
+    
+La classe de base de tous les objets Rx est **Observable\<T\>** (à distinguer de Observable de java.util). 
+Tous les classes Rx héritent de celle-ci !     
+Le type \<T\> indique le type d'objet que l'instance de **Observable** va pouvoir émettre. 
 
+| Type d'observable     |   |
+|-----------------------|---|
+| Emission              | Peut émettre plusieurs fois la valeur <T> |
+| Callback disponibles  | Il y a 3 callbacks disponibles avec un Observable<T>.<br>La première callback est onNext(\<T\> object). Elle est appelée dès lors qu'il y a une nouvelle valeur.<br>Il y a onError(Throwable error), appelé dès lors que l'Observable rencontre une erreur.<br>Et enfin, il y a onComplete(), appelé dès lors que l'observable a terminé |
+
+En RxJava, on peut le créer de plusieurs manières différentes
 
 ## TO WRITE
 
