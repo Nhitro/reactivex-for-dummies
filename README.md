@@ -218,8 +218,8 @@ Le type \<T\> indique le type d'objet que l'instance de **Observable** va pouvoi
 
 | Type d'observable     |   |
 |-----------------------|---|
-| Emission              | Peut émettre plusieurs fois la valeur <T> |
-| Callback disponibles  | Il y a 3 callbacks disponibles avec un Observable<T>.<br>La première callback est onNext(\<T\> object). Elle est appelée dès lors qu'il y a une nouvelle valeur.<br>Il y a onError(Throwable error), appelé dès lors que l'Observable rencontre une erreur.<br>Et enfin, il y a onComplete(), appelé dès lors que l'observable a terminé |
+| Spécificité           | Peut émettre plusieurs fois la valeur <T> |
+| Callback disponibles  | Il y a 3 callbacks disponibles avec un Observable<T>.<br> 1. onNext(\<T\> object). appelée dès lors qu'il y a une nouvelle valeur<br>2. onError(Throwable error), appelée dès lors que l'Observable rencontre une erreur<br>3. onComplete(), appelée dès lors que l'observable a terminé |
 
 En RxJava, on peut le créer de plusieurs manières différentes
 
