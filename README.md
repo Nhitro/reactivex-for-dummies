@@ -221,7 +221,7 @@ Le type \<T\> indique le type d'objet que l'instance de **Observable** va pouvoi
 | Spécificité           | Peut émettre plusieurs fois la valeur <T> |
 | Callback disponibles  | Il y a 3 callbacks disponibles avec un Observable<T>.<br> 1. onNext(\<T\> object). appelée dès lors qu'il y a une nouvelle valeur<br>2. onError(Throwable error), appelée dès lors que l'Observable rencontre une erreur<br>3. onComplete(), appelée dès lors que l'observable a terminé |
 
-En RxJava, on peut le créer de plusieurs manières différentes un objet Rx. La manière la plus classique est d'utiliser la méthode `create()`.
+En RxJava, on peut le créer de plusieurs manières différentes un objet Rx. La manière la plus classique est d'utiliser la méthode statique `create<T>()`.
 ```kotlin
 // De cette manière, c'est à nous de définir ce qu'il va se passer dans l'Observable.
 // On peut imaginer par exemple l'appel à un web service paginé pour illustrer le propos
