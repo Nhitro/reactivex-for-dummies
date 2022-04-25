@@ -213,15 +213,37 @@ Nous allons commencer par aborder les cold observables.
 ##### Observable
     
 La classe de base de tous les objets Rx est **Observable\<T\>** (à distinguer de Observable de java.util). 
-Tous les classes Rx héritent de celle-ci !     
+Tous les classes Rx héritent de celle-ci ! Comment il fonctionne ? Il va exécuter du code et mettre à disposition 3 méthodes à son observer.     
 Le type \<T\> indique le type d'objet que l'instance de **Observable** va pouvoir émettre. 
 
-| Type d'observable     |   |
-|-----------------------|---|
+| Type d'observable     | Observable  |
+|-----------------------|-------------|
 | Spécificité           | Peut émettre plusieurs fois la valeur <T> |
 | Callback disponibles  | Il y a 3 callbacks disponibles avec un Observable<T>.<br> 1. onNext(\<T\> object). appelée dès lors qu'il y a une nouvelle valeur<br>2. onError(Throwable error), appelée dès lors que l'Observable rencontre une erreur<br>3. onComplete(), appelée dès lors que l'observable a terminé |
 
-En RxJava, on peut le créer de plusieurs manières différentes
+En RxJava, on peut le créer de plusieurs manières différentes un objet Rx. La manière la plus classique est d'utiliser la méthode `create()`.
+```kotlin
+// De cette manière, c'est à nous de définir ce qu'il va se passer dans l'Observable.
+// On peut imaginer par exemple l'appel à un web service paginé pour illustrer le propos
+Observable.create<Response> { emitter ->  
+    var currentPage = 0
+  
+    try { 
+       while (currentPage < maxPage) {
+          val response = appelDistant(currentPage)
+          // Emission d'une nouvelle valeur                            
+          emitter.onNext(response)                           
+          currentPage++
+       }                    
+   } catch (e: HttpException) {
+     // Emission d'une erreur                               
+     emitter.onError(e)                              
+   } finally {
+     // Emission de la fin de l'Observable                               
+     emitter.onComplete()                              
+   }                             
+}
+```
 
 ## TO WRITE
 
