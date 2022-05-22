@@ -219,7 +219,7 @@ Comment fonctionne-t-il ? Il va exécuter du code et mettre à disposition 3 mé
 En règle générale, une méthode est dédiée au résultat, une seconde est dédiée à la gestion d'erreur et une dernière est dédiée à la fin du traitement. Nous y reviendrons dans la partie sur l'exécution d'un observable.
 Le type \<T\> indique le type d'objet que l'instance de **Observable** va pouvoir émettre. 
 
-| Type d'observable     | Spécificité                                                      | Callabacks disponibles |
+| Type d'observable     | Spécificité                                                      | Callbacks disponibles |
 |-----------------------|------------------------------------------------------------------|------------------------|
 | Observable            | Peut émettre plusieurs fois la valeur \<T\> via onNext(\<T\> object) | 1. onNext(\<T\> object) : <br>Appelée dès lors qu'il y a une nouvelle valeur<br><br>2. onError(Throwable error) : <br>Appelée dès lors que l'Observable rencontre une erreur<br><br>3. onComplete() : <br>Appelée dès lors que l'observable a terminé |
 
@@ -227,7 +227,7 @@ Le type \<T\> indique le type d'objet que l'instance de **Observable** va pouvoi
 
 La seconde classe Rx que l'on va aborder est le **Flowable\<T\>**. La seule différence entre cet objet et **Observable** est la présence d'une stratégie de gestion de mémoire, **BackpressureStrategy**, qui a pour objectif d'éviter des erreurs de mémoire pleine (Out of memory ou OOM). En effet, cette erreur peut survenir lorsqu'un Observable émet un très grand nombre d'objets et que le processus qui en découle sollicite toute la mémoire ram allouée. Dans le cas d'une application Android, celle-ci va crash dès lors qu'elle ne pourra pas obtenir plus de ram qu'elle en a !
 
-| Type d'observable | Spécificité                                                      | Callabacks disponibles |
+| Type d'observable | Spécificité                                                      | Callbacks disponibles |
 |-------------------|------------------------------------------------------------------|------------------------|
 | Flowable          | Identique à l'observable, met en place une stratégie en cas de OOM imminent | 1. onNext(\<T\> object) : <br>Appelée dès lors qu'il y a une nouvelle valeur<br><br>2. onError(Throwable error) : <br>Appelée dès lors que le Flowable rencontre une erreur<br><br>3. onComplete() : <br>Appelée dès lors que le Flowable a terminé |
 
@@ -237,7 +237,7 @@ Les prochains observables que l'on va décrire sont légèrement différents des
 
 La troisième classe Rx est le **Single<\T\>** et c'est le premier des trois observables à émission unique que l'on va aborder. À noter que chacun de ces trois objets a été pensé dans un "but", celui du Single est de récupérer une valeur ou d'émettre une erreur. Du fait de sa spécificité, les méthodes onNext() et onComplete() n'existent plus, mais nous retrouvons à la place une nouvelle méthode qui s'appelle onSuccess(\<T\> object). Pour ce qui est de la gestion d'erreur, le fonctionnement est similaire à ceux que l'on a déjà vu !
 
-| Type d'observable | Spécificité                                                      | Callabacks disponibles |
+| Type d'observable | Spécificité                                                      | Callbacks disponibles |
 |-------------------|------------------------------------------------------------------|------------------------|
 | Single          | N'émet que soit un résultat via onSuccess(\<T\> object), soit une erreur | 1. onSuccess(\<T\> object) : <br>Appelée avec une unique valeur<br><br>2. onError(Throwable error) : <br>Appelée dès lors que le Single rencontre une erreur |
 
@@ -245,7 +245,7 @@ La troisième classe Rx est le **Single<\T\>** et c'est le premier des trois obs
 
 La quatrième classe Rx est le **Maybe<\T\>**. Comme son nom l'indique, il va "peut-être" trouver une valeur mais celle n'étant pas garantie, il va pouvoir appeler la méthode onEmpty(), qui possède la même signature que onComplete() de Observable / Flowable.
     
-| Type d'observable | Spécificité                                                      | Callabacks disponibles |
+| Type d'observable | Spécificité                                                      | Callbacks disponibles |
 |-------------------|------------------------------------------------------------------|------------------------|
 | Maybe          | Similaire au Single, mais en cas d'absence de valeur, appelle onEmpty() | 1. onSuccess(\<T\> object) : <br>Appelée avec une unique valeur<br><br>2. onError(Throwable error) : <br>Appelée dès lors que le Maybe rencontre une erreur<br><br>onEmpty(): <br> Appelée en cas d'absence de valeur |
 
@@ -253,10 +253,20 @@ La quatrième classe Rx est le **Maybe<\T\>**. Comme son nom l'indique, il va "p
     
 La cinquième et dernière classe des cold observable de Rx est le **Completable**. Le completable a pour but d'exécuter du code qui ne nécessite pas de retourner un résultat, seulement de valider qu'il a bien été exécuté.
 
-| Type d'observable | Spécificité                                                      | Callabacks disponibles |
+| Type d'observable | Spécificité                                                      | Callbacks disponibles |
 |-------------------|------------------------------------------------------------------|------------------------|
 | Completable       | Ne retourne aucun résultat | 1. OnComplete() : <br>Appelée quand c'est terminé<br><br>2. onError(Throwable error) : <br>Appelée dès lors que le Completable rencontre une erreur |
 
+Voici un tableau qui synthétise l'ensemble des callbacks disponibles pour les cold observables : 
+    
+| Type d'observable     | onNext | onSuccess | onError | onComplete | onEmpty | Spécificité |
+|-----------------------|--------|-----------|---------|------------|---------| ----------- |
+| Observable            | X      | /         | X       |    X       |    /    | Emission multiple via onNext() |
+| Flowable              | X      | /         | X       |    X       |    /    | Emission multiple via onNext(), stratégie en cas de OOM |
+| Single                | /      | X         | X       |    /       |    /    | |
+| Maybe                 | /      | X         | X       |    /       |    X    | |
+| Completable           | /      | /         | X       |    X       |    /    | |
+    
 En RxJava, on peut le créer de plusieurs manières différentes un objet Rx. La manière la plus classique est d'utiliser la méthode statique `create<T>()`.
 
 > Vous pouvez retrouver cette méthode sur toutes les classes Rx ! (En RxJava)
